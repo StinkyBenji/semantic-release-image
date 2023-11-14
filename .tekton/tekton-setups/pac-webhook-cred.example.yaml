@@ -1,0 +1,8 @@
+kind: Secret
+apiVersion: v1
+metadata:
+  name: github-webhook-config
+stringData:
+  provider.token: <your-token>
+  webhook.secret: <webhook-secret>
+type: Opaque
