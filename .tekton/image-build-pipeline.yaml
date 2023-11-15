@@ -71,24 +71,8 @@ spec:
             value: ./Containerfile
           - name: output-format
             value: json
-
-      # - name: generate-release-version
-      #   when:
-      #     - input: "{{ source_branch }}"
-      #       operator: in
-      #       values: ["main"]
-      #   runAfter:
-      #     - fetch-repository
-      #   taskRef:
-      #     name: semantic-release
-      #   workspaces:
-      #     - name: source
-      #       workspace: source
-      #   params:
-      #     - name: source-branch
-      #       value: "{{ source_branch }}"
-      #     - name: extra-args
-      #       value: "--dry-run"
+          - name: ignore-rules
+            value: "DL3002"
 
       - name: build-image
         taskRef:
