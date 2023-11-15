@@ -6,8 +6,8 @@ metadata:
   annotations:
     pipelinesascode.tekton.dev/max-keep-runs: "5"
     pipelinesascode.tekton.dev/task: "[git-clone, gitleaks, hadolint, trivy-scanner, syft, grype]"
-    # pipelinesascode.tekton.dev/task-2: "[https://raw.githubusercontent.com/StinkyBenji/some-tekton/main/tasks/semantic-release.yaml]"
     pipelinesascode.tekton.dev/task-1: "[https://raw.githubusercontent.com/StinkyBenji/some-tekton/main/tasks/buildah.yaml]"
+    pipelinesascode.tekton.dev/task-2: "[https://raw.githubusercontent.com/StinkyBenji/some-tekton/main/tasks/semantic-release.yaml]"
     pipelinesascode.tekton.dev/on-cel-expression: |
       (event == "push" || event == "pull_request") && target_branch == "main" &&
       ("Containerfile".pathChanged() || "*.json".pathChanged() || ".tekton/image-build-pipeline.yaml".pathChanged())
@@ -123,7 +123,6 @@ spec:
       - name: image-test
         taskRef:
           name: semantic-release
-          kind: Task
         workspaces:
           - name: source
             workspace: source
