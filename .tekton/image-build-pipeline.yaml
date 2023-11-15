@@ -100,6 +100,8 @@ spec:
         runAfter:
           - dockerfile-lint
         params:
+          - name: DOCKERFILE
+            value: "./Containerfile"
           - name: IMAGE
             value: "localbuild/semantic-release:latest"
 
