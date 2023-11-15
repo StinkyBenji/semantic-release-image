@@ -141,7 +141,7 @@ spec:
           - name: ARGS
             value:
               - "$(tasks.build-image.results.IMAGE_URL)"
-              - "-o spdx-json"
+              - "-o spdx-json=image.sbom.json"
 
       - name: git-release
         when:
