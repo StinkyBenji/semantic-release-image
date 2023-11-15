@@ -5,7 +5,7 @@ metadata:
   name: image-build-pipeline
   annotations:
     pipelinesascode.tekton.dev/max-keep-runs: "5"
-    pipelinesascode.tekton.dev/task: "[git-clone, gitleaks, hadolint]"
+    pipelinesascode.tekton.dev/task: "[git-clone, gitleaks, hadolint, trivy-scanner, syft, grype]"
     pipelinesascode.tekton.dev/task-1: "[https://raw.githubusercontent.com/StinkyBenji/some-tekton/main/tasks/semantic-release.yaml]"
     pipelinesascode.tekton.dev/on-cel-expression: |
       (event == "push" || event == "pull_request") && target_branch == "main" &&
@@ -69,30 +69,28 @@ spec:
         params:
           - name: dockerfile-path
             value: ./Containerfile
+          - name: output-format
+            value: json
 
-      - name: generate-release-version
-        when:
-          - input: "{{ source_branch }}"
-            operator: in
-            values: ["main"]
-        runAfter:
-          - fetch-repository
-        taskRef:
-          name: semantic-release
-        workspaces:
-          - name: source
-            workspace: source
-        params:
-          - name: source-branch
-            value: "{{ source_branch }}"
-          - name: extra-args
-            value: "--dry-run"
+      # - name: generate-release-version
+      #   when:
+      #     - input: "{{ source_branch }}"
+      #       operator: in
+      #       values: ["main"]
+      #   runAfter:
+      #     - fetch-repository
+      #   taskRef:
+      #     name: semantic-release
+      #   workspaces:
+      #     - name: source
+      #       workspace: source
+      #   params:
+      #     - name: source-branch
+      #       value: "{{ source_branch }}"
+      #     - name: extra-args
+      #       value: "--dry-run"
 
       - name: build-image
-        when:
-          - input: "{{ source_branch }}"
-            operator: in
-            values: ["main"]
         taskRef:
           name: buildah
           kind: ClusterTask
@@ -103,23 +101,55 @@ spec:
           - dockerfile-lint
         params:
           - name: IMAGE
-            value: "quay.io/stbenji/semantic-release:$(tasks.generate-release-version.results.version)"
+            value: "localbuild/semantic-release:latest"
 
-      - name: git-release
-        when:
-          - input: "{{ source_branch }}"
-            operator: in
-            values: ["main"]
+      - name: image-scan
+        taskRef:
+          name: trivy-scanner
+        workspaces:
+          - name: manifest-dir
+            workspace: source
         runAfter:
           - build-image
-        taskRef:
-          name: semantic-release
-        workspaces:
-          - name: source
-            workspace: source
         params:
-          - name: source-branch
-            value: "{{ source_branch }}"
+          - name: IMAGE_PATH
+            value: $(tasks.build-image.results.IMAGE_URL)
+          - name: ARGS
+            value:
+              - "image"
+              - "--severity HIGH,CRITICAL"
+              - "--ignore-unfixed"
+
+      - name: generate-sbom
+        taskRef:
+          name: syft
+        workspaces:
+          - name: source-dir
+            workspace: source
+        runAfter:
+          - build-image
+        params:
+          - name: ARGS
+            value:
+              - "$(tasks.build-image.results.IMAGE_URL)"
+              - "-f image.spdx.json"
+              - "-o spdx-json"
+
+      # - name: git-release
+      #   when:
+      #     - input: "{{ source_branch }}"
+      #       operator: in
+      #       values: ["main"]
+      #   runAfter:
+      #     - build-image
+      #   taskRef:
+      #     name: semantic-release
+      #   workspaces:
+      #     - name: source
+      #       workspace: source
+      #   params:
+      #     - name: source-branch
+      #       value: "{{ source_branch }}"
 
   workspaces:
     - name: source
