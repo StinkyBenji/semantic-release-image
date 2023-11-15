@@ -103,7 +103,9 @@ spec:
           - name: DOCKERFILE
             value: "./Containerfile"
           - name: IMAGE
-            value: "localbuild/semantic-release:latest"
+            value: "localhost/semantic-release:latest"
+          - name: SKIP_PUSH
+            value: "true"
 
       - name: image-scan
         taskRef:
