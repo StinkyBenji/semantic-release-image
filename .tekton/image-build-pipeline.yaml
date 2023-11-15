@@ -124,10 +124,10 @@ spec:
             value: "--dry-run"
 
       - name: generate-sbom
-        when:
-          - input: "{{ source_branch }}"
-            operator: in
-            values: ["main"]
+        # when:
+        #   - input: "{{ source_branch }}"
+        #     operator: in
+        #     values: ["main"]
         taskRef:
           name: syft
         workspaces:
@@ -136,6 +136,8 @@ spec:
         runAfter:
           - build-image
         params:
+          - name: SYFT_IMAGE
+            value: "docker.io/anchore/syft:latest"
           - name: ARGS
             value:
               - "$(tasks.build-image.results.IMAGE_URL)"
