@@ -8,6 +8,7 @@ metadata:
     pipelinesascode.tekton.dev/task: "[git-clone, gitleaks, hadolint, trivy-scanner, syft, grype]"
     pipelinesascode.tekton.dev/task-1: "[https://raw.githubusercontent.com/StinkyBenji/some-tekton/main/tasks/buildah.yaml]"
     pipelinesascode.tekton.dev/task-2: "[https://raw.githubusercontent.com/StinkyBenji/some-tekton/main/tasks/semantic-release.yaml]"
+    pipelinesascode.tekton.dev/task-3: "[https://raw.githubusercontent.com/StinkyBenji/some-tekton/main/tasks/skopeo-copy.yaml]"
     pipelinesascode.tekton.dev/on-cel-expression: |
       (event == "push" || event == "pull_request") && target_branch == "main" &&
       ("Containerfile".pathChanged() || "*.json".pathChanged() || ".tekton/image-build-pipeline.yaml".pathChanged())
@@ -106,7 +107,27 @@ spec:
               - "--severity HIGH,CRITICAL"
               - "--ignore-unfixed"
 
+      - name: image-test
+        taskRef:
+          name: semantic-release
+        workspaces:
+          - name: source
+            workspace: source
+        runAfter:
+          - build-image
+        params:
+          - name: IMAGE
+            value: "$(tasks.build-image.results.IMAGE_URL)"
+          - name: source-branch
+            value: "{{ source_branch }}"
+          - name: extra-args
+            value: "--dry-run"
+
       - name: generate-sbom
+        when:
+          - input: "{{ source_branch }}"
+            operator: in
+            values: ["main"]
         taskRef:
           name: syft
         workspaces:
@@ -120,37 +141,57 @@ spec:
               - "$(tasks.build-image.results.IMAGE_URL)"
               - "-o spdx-json"
 
-      - name: image-test
+      - name: git-release
+        when:
+          - input: "{{ source_branch }}"
+            operator: in
+            values: ["main"]
+        runAfter:
+          - build-image
         taskRef:
           name: semantic-release
         workspaces:
           - name: source
             workspace: source
-        runAfter:
-          - build-image
         params:
-          - name: IMAGE
-            value: "$(tasks.build-image.results.IMAGE_URL)"
           - name: source-branch
-            value: "main"
-          - name: extra-args
-            value: "--dry-run"
+            value: "{{ source_branch }}"
 
-      # - name: git-release
-      #   when:
-      #     - input: "{{ source_branch }}"
-      #       operator: in
-      #       values: ["main"]
-      #   runAfter:
-      #     - build-image
-      #   taskRef:
-      #     name: semantic-release
-      #   workspaces:
-      #     - name: source
-      #       workspace: source
-      #   params:
-      #     - name: source-branch
-      #       value: "{{ source_branch }}"
+      - name: push-image-tag
+        when:
+          - input: "{{ source_branch }}"
+            operator: in
+            values: ["main"]
+        runAfter:
+          - git-release
+        taskRef:
+          name: skopeo-copy
+        workspaces:
+          - name: source
+            workspace: source
+        params:
+          - name: srcImageURL
+            value: "docker://$(tasks.build-image.results.IMAGE_URL)"
+          - name: destImageURL
+            value: "docker://quay.io/stbenji/semantic-release:$(tasks.git-release.results.version)"
+
+      - name: update-image-latest
+        when:
+          - input: "{{ source_branch }}"
+            operator: in
+            values: ["main"]
+        runAfter:
+          - git-release
+        taskRef:
+          name: skopeo-copy
+        workspaces:
+          - name: source
+            workspace: source
+        params:
+          - name: srcImageURL
+            value: "docker://$(tasks.build-image.results.IMAGE_URL)"
+          - name: destImageURL
+            value: "docker://quay.io/stbenji/semantic-release:latest"
 
   workspaces:
     - name: source
