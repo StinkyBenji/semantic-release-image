@@ -123,25 +123,25 @@ spec:
           - name: extra-args
             value: "--dry-run"
 
-      - name: generate-sbom
-        # when:
-        #   - input: "{{ source_branch }}"
-        #     operator: in
-        #     values: ["main"]
-        taskRef:
-          name: syft
-        workspaces:
-          - name: source-dir
-            workspace: source
-        runAfter:
-          - build-image
-        params:
-          - name: SYFT_IMAGE
-            value: "docker.io/anchore/syft:latest"
-          - name: ARGS
-            value:
-              - "$(tasks.build-image.results.IMAGE_URL)"
-              - "-o spdx-json=image.sbom.json"
+      # - name: generate-sbom
+      #   when:
+      #     - input: "{{ source_branch }}"
+      #       operator: in
+      #       values: ["main"]
+      #   taskRef:
+      #     name: syft
+      #   workspaces:
+      #     - name: source-dir
+      #       workspace: source
+      #   runAfter:
+      #     - build-image
+      #   params:
+      #     - name: SYFT_IMAGE
+      #       value: "docker.io/anchore/syft:latest"
+      #     - name: ARGS
+      #       value:
+      #         - "$(tasks.build-image.results.IMAGE_URL)"
+      #         - "-o spdx-json=image.sbom.json"
 
       - name: git-release
         when:
