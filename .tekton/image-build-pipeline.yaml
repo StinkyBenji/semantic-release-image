@@ -156,6 +156,8 @@ spec:
           - name: source
             workspace: source
         params:
+          - name: IMAGE
+            value: "$(tasks.build-image.results.IMAGE_URL)"
           - name: source-branch
             value: "{{ source_branch }}"
 
