@@ -12,7 +12,7 @@ metadata:
     pipelinesascode.tekton.dev/task-4: "[https://raw.githubusercontent.com/securesign/pipelines-demo/main/01_verify_source_code_pipeline/verify-commit-signature-task.yaml]"
     pipelinesascode.tekton.dev/on-cel-expression: |
       (event == "push" || event == "pull_request") && target_branch == "main" &&
-      ("Containerfile".pathChanged() || "*.json".pathChanged() || ".tekton/image-build-pipelinerun.yaml".pathChanged())
+      ("Containerfile".pathChanged() || ".tekton/image-build-pipelinerun.yaml".pathChanged())
 spec:
   serviceAccountName: pipelines-sa
   params:
