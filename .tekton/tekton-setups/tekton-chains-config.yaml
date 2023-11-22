@@ -9,9 +9,12 @@ metadata:
     operator.tekton.dev/operand-name: tektoncd-chains
 data:
   artifacts.oci.repository: "quay.io"
-  artifacts.oci.storage: "tekton,oci"
-  artifacts.pipelinerun.format: slsa/v1
-  artifacts.pipelinerun.storage: "tekton,oci"
-  artifacts.taskrun.format: slsa/v1
-  artifacts.taskrun.storage: "tekton,oci"
+  artifacts.oci.storage: "oci"
+  artifacts.pipelinerun.format: in-toto
+  artifacts.pipelinerun.storage: "tekton"
+  artifacts.taskrun.format: in-toto
+  artifacts.taskrun.storage: "tekton"
   transparency.enabled: "true"
+  transparency.url: https://rekor.apps.ocp4.whatever.out-of-my-head.de
+  signers.x509.fulcio.enabled: "true"
+  signers.x509.fulcio.address: https://fulcio.apps.ocp4.whatever.out-of-my-head.de

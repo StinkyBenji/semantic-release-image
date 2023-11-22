@@ -7,5 +7,4 @@ imagePullSecrets:
 secrets:
   - name: semantic-release-auth
   - name: registry-credentials
-  - name: signing-secrets
   - name: github-webhook-config
