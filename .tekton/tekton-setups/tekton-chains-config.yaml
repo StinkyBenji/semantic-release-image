@@ -8,14 +8,12 @@ metadata:
     app.kubernetes.io/part-of: tekton-chains
     operator.tekton.dev/operand-name: tektoncd-chains
 data:
-  artifacts.oci.repository: "image-registry.openshift-image-registry.svc:5000,quay.io"
   artifacts.oci.storage: "oci"
-  artifacts.pipelinerun.format: in-toto
-  artifacts.pipelinerun.storage: "tekton"
-  artifacts.taskrun.format: in-toto
-  artifacts.taskrun.storage: "tekton"
+  artifacts.pipelinerun.storage: oci
+  artifacts.taskrun.storage: "oci"
   transparency.enabled: "true"
   transparency.url: https://rekor.apps.ocp4.whatever.out-of-my-head.de
   signers.x509.fulcio.enabled: "true"
   signers.x509.fulcio.address: https://fulcio.apps.ocp4.whatever.out-of-my-head.de
   signers.x509.fulcio.issuer: https://keycloak-keycloak-system.apps.ocp4.whatever.out-of-my-head.de/auth/realms/sigstore
+  signers.x509.tuf.mirror.url: https://tuf.apps.ocp4.whatever.out-of-my-head.de
