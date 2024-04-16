@@ -1,0 +1,68 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: semantic-release
+  labels:
+    app.kubernetes.io/version: "0.1"
+  annotations:
+    tekton.dev/categories: semantic release
+    tekton.dev/tags: semantic, versioning, release, changelog
+spec:
+  description: A task for generating release notes and create release.
+  params:
+    - name: IMAGE
+      type: string
+      description: The name of the image used to run the task.
+      default: "quay.io/stbenji/semantic-release:latest"
+    - name: semantic-release-auth
+      type: string
+      description: name of the secret holding the github token and npm token
+      default: semantic-release-auth
+    - name: source-branch
+      type: string
+      description: the source-branch that semantic-release will run on
+    - name: extra-args
+      type: string
+      description: extra arguments to be used for semantic-release
+      default: ""
+  results:
+    - description: The version to be released
+      name: version
+      type: string
+  workspaces:
+    - name: source
+  steps:
+    - name: semantic-release
+      image: $(params.IMAGE)
+      env:
+        - name: GH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: $(params.semantic-release-auth)
+              key: GH_TOKEN
+        - name: NPM_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: $(params.semantic-release-auth)
+              key: NPM_TOKEN
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+      workingDir: $(workspaces.source.path)
+      script: |
+        #!/usr/bin/env sh
+        git config --global --add safe.directory $(workspaces.source.path)
+        echo "Fetch origin"
+        git fetch origin
+        echo "Checkout the $(params.source-branch)"
+        git checkout $(params.source-branch)
+        git pull
+        # run the semantic-release
+        npx semantic-release --no-ci --branches $(params.source-branch) $(params.extra-args)
+        if test -f ".VERSION"; then
+          echo -n "$(cat .VERSION)" | tee /tekton/results/version
+        else
+          echo "no .VERSION file exists."
+          exit 1
+        fi

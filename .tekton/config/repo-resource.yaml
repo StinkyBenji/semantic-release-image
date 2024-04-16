@@ -2,7 +2,7 @@ apiVersion: pipelinesascode.tekton.dev/v1alpha1
 kind: Repository
 metadata:
   name: semantic-release-image-repo
-
+  namespace: image-build
 spec:
   url: "https://github.com/StinkyBenji/semantic-release-image"
   git_provider:

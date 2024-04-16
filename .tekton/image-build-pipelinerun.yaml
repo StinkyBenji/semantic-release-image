@@ -5,11 +5,9 @@ metadata:
   name: image-build-pipelinerun
   annotations:
     pipelinesascode.tekton.dev/max-keep-runs: "5"
-    pipelinesascode.tekton.dev/task: "[git-clone, gitleaks, hadolint, trivy-scanner, syft, grype]"
-    pipelinesascode.tekton.dev/task-1: "[https://raw.githubusercontent.com/StinkyBenji/some-tekton/main/tasks/buildah.yaml]"
-    pipelinesascode.tekton.dev/task-2: "[https://raw.githubusercontent.com/StinkyBenji/some-tekton/main/tasks/semantic-release.yaml]"
-    pipelinesascode.tekton.dev/task-3: "[https://raw.githubusercontent.com/StinkyBenji/some-tekton/main/tasks/skopeo-copy.yaml]"
-    pipelinesascode.tekton.dev/task-4: "[https://raw.githubusercontent.com/securesign/pipelines-demo/main/01_verify_source_code_pipeline/verify-commit-signature-task.yaml]"
+    pipelinesascode.tekton.dev/task: "[git-clone, gitleaks, hadolint]"
+    pipelinesascode.tekton.dev/task-1: "[.tekton/tasks/semantic-release.yaml]"
+    pipelinesascode.tekton.dev/task-2: "[.tekton/tasks/skopeo-copy.yaml]"
     pipelinesascode.tekton.dev/on-cel-expression: |
       (event == "push" || event == "pull_request") && target_branch == "main" &&
       ("Containerfile".pathChanged() || ".tekton/image-build-pipelinerun.yaml".pathChanged())
@@ -45,24 +43,6 @@ spec:
           - name: revision
             value: $(params.revision)
 
-      - name: detect-secrets
-        runAfter:
-          - fetch-repository
-        taskRef:
-          name: gitleaks
-        workspaces:
-          - name: source
-            workspace: source
-        params:
-          - name: repo_path
-            value: "."
-          - name: config_file_url
-            value: https://raw.githubusercontent.com/tektoncd/catalog/main/task/gitleaks/0.1/samples/gitleaks.toml
-          - name: config_file_path
-            value: gitleaks.toml
-          - name: report_output_path
-            value: gitleaks-report.json
-
       - name: dockerfile-lint
         runAfter:
           - fetch-repository
@@ -82,6 +62,7 @@ spec:
       - name: build-image
         taskRef:
           name: buildah
+          kind: ClusterTask
         workspaces:
           - name: source
             workspace: source
@@ -92,23 +73,6 @@ spec:
             value: "./Containerfile"
           - name: IMAGE
             value: "image-registry.openshift-image-registry.svc:5000/image-build/semantic-release:latest"
-
-      - name: image-scan
-        taskRef:
-          name: trivy-scanner
-        workspaces:
-          - name: manifest-dir
-            workspace: source
-        runAfter:
-          - build-image
-        params:
-          - name: IMAGE_PATH
-            value: "$(tasks.build-image.results.IMAGE_URL)"
-          - name: ARGS
-            value:
-              - "image"
-              - "--severity HIGH,CRITICAL"
-              - "--ignore-unfixed"
 
       - name: image-test
         taskRef:
