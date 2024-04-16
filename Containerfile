@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi8/nodejs-18@sha256:d4ef3da5c97ae5f063f604d58ba620350c68c086f7f6d88ec0536a883b2d364f
+FROM registry.access.redhat.com/ubi8/nodejs-18@sha256:7f4a90b6aff42d792fa9dbff804747628f9de7a5a63c8508e1cb0691f97dbf2f
 
 WORKDIR $HOME
 
