@@ -19,8 +19,6 @@ spec:
       value: "{{ repo_url }}"
     - name: revision
       value: "{{ revision }}"
-    - name: oidc-user-email
-      value: "rzh@redhat.com"
   podTemplate:
     env:
       - name: HOME
