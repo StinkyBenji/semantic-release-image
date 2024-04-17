@@ -6,8 +6,9 @@ metadata:
   annotations:
     pipelinesascode.tekton.dev/max-keep-runs: "5"
     pipelinesascode.tekton.dev/task: "[git-clone, gitleaks, hadolint]"
-    pipelinesascode.tekton.dev/task-1: "[.tekton/tasks/semantic-release.yaml]"
-    pipelinesascode.tekton.dev/task-2: "[.tekton/tasks/skopeo-copy.yaml]"
+    pipelinesascode.tekton.dev/task-1: "[.tekton/tasks/buildah.yaml]"
+    pipelinesascode.tekton.dev/task-2: "[.tekton/tasks/semantic-release.yaml]"
+    pipelinesascode.tekton.dev/task-3: "[.tekton/tasks/skopeo-copy.yaml]"
     pipelinesascode.tekton.dev/on-cel-expression: |
       (event == "push" || event == "pull_request") && target_branch == "main" &&
       ("Containerfile".pathChanged() || ".tekton/image-build-pipelinerun.yaml".pathChanged())
@@ -62,7 +63,6 @@ spec:
       - name: build-image
         taskRef:
           name: buildah
-          kind: ClusterTask
         workspaces:
           - name: source
             workspace: source
