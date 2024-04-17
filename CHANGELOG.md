@@ -1,3 +1,14 @@
+## [1.0.1](https://github.com/StinkyBenji/semantic-release-image/compare/v1.0.0...v1.0.1) (2024-04-17)
+
+
+### Bug Fixes
+
+* change ClusterTask resource to Task ([b97f6ab](https://github.com/StinkyBenji/semantic-release-image/commit/b97f6ab7823aefc399e42cbfe3e85aef9bd02948))
+* change to use custom buildah task and add syft and grype tasks ([0124645](https://github.com/StinkyBenji/semantic-release-image/commit/01246451fa86d2be79a498a483007d83df687d32))
+* **ci:** change pipelinerun name ([6b9be8f](https://github.com/StinkyBenji/semantic-release-image/commit/6b9be8f68694cea49c6e5d2ec01f68072141b4d1))
+* correct the buildah task name ([5323245](https://github.com/StinkyBenji/semantic-release-image/commit/5323245a2728a6e17c251aef2da3b7b3695d9d46))
+* update the image url ([042dcb4](https://github.com/StinkyBenji/semantic-release-image/commit/042dcb4df65b0290812172c55bf549944b0fe0e3))
+
 ## [1.0.0](https://github.com/StinkyBenji/semantic-release-image/compare/v0.0.0...v1.0.0) (2023-11-16)
 
 
