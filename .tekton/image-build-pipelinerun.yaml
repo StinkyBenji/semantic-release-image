@@ -7,8 +7,10 @@ metadata:
     pipelinesascode.tekton.dev/max-keep-runs: "5"
     pipelinesascode.tekton.dev/task: "[git-clone, gitleaks, hadolint]"
     pipelinesascode.tekton.dev/task-1: "[.tekton/tasks/buildah.yaml]"
-    pipelinesascode.tekton.dev/task-2: "[.tekton/tasks/semantic-release.yaml]"
-    pipelinesascode.tekton.dev/task-3: "[.tekton/tasks/skopeo-copy.yaml]"
+    pipelinesascode.tekton.dev/task-2: "[.tekton/tasks/syft.yaml]"
+    pipelinesascode.tekton.dev/task-3: "[.tekton/tasks/grype.yaml]"
+    pipelinesascode.tekton.dev/task-4: "[.tekton/tasks/semantic-release.yaml]"
+    pipelinesascode.tekton.dev/task-5: "[.tekton/tasks/skopeo-copy.yaml]"
     pipelinesascode.tekton.dev/on-cel-expression: |
       (event == "push" || event == "pull_request") && target_branch == "main" &&
       ("Containerfile".pathChanged() || ".tekton/image-build-pipelinerun.yaml".pathChanged())
@@ -19,6 +21,16 @@ spec:
       value: "{{ repo_url }}"
     - name: revision
       value: "{{ revision }}"
+    - name: IMAGE
+      value: "quay.io/stbenji/semantic-release"
+    - name: tuf-url
+      value: https://tuf-openshift-operators.apps.ocp4.whatever.out-of-my-head.de
+    - name: fulcio-url
+      value: https://fulcio-server-openshift-operators.apps.ocp4.whatever.out-of-my-head.de
+    - name: rekor-url
+      value: https://rekor-server-openshift-operators.apps.ocp4.whatever.out-of-my-head.de
+    - name: oidc-issuer-url
+      value: https://oidc-discovery.apps.ocp4.whatever.out-of-my-head.de
   podTemplate:
     env:
       - name: HOME
@@ -70,7 +82,7 @@ spec:
           - name: DOCKERFILE
             value: "./Containerfile"
           - name: IMAGE
-            value: "image-registry.openshift-image-registry.svc:5000/image-build/semantic-release:latest"
+            value: "image-registry.openshift-image-registry.svc:5000/image-build/semantic-release"
 
       - name: image-test
         taskRef:
@@ -88,79 +100,157 @@ spec:
           - name: extra-args
             value: "--dry-run"
 
-      # - name: generate-sbom
-      #   when:
-      #     - input: "{{ source_branch }}"
-      #       operator: in
-      #       values: ["main"]
-      #   taskRef:
-      #     name: syft
-      #   workspaces:
-      #     - name: source-dir
-      #       workspace: source
-      #   runAfter:
-      #     - build-image
-      #   params:
-      #     - name: SYFT_IMAGE
-      #       value: "docker.io/anchore/syft:latest"
-      #     - name: ARGS
-      #       value:
-      #         - "$(tasks.build-image.results.IMAGE_URL)"
-      #         - "-o spdx-json=image.sbom.json"
+      - name: git-release
+        when:
+          - input: "{{ source_branch }}"
+            operator: in
+            values: ["main"]
+        runAfter:
+          - image-test
+        taskRef:
+          name: semantic-release
+        workspaces:
+          - name: source
+            workspace: source
+        params:
+          - name: IMAGE
+            value: "$(tasks.build-image.results.IMAGE_URL)"
+          - name: source-branch
+            value: "{{ source_branch }}"
 
-      # - name: git-release
-      #   when:
-      #     - input: "{{ source_branch }}"
-      #       operator: in
-      #       values: ["main"]
-      #   runAfter:
-      #     - image-test
-      #   taskRef:
-      #     name: semantic-release
-      #   workspaces:
-      #     - name: source
-      #       workspace: source
-      #   params:
-      #     - name: IMAGE
-      #       value: "$(tasks.build-image.results.IMAGE_URL)"
-      #     - name: source-branch
-      #       value: "{{ source_branch }}"
+      - name: push-image-tag
+        when:
+          - input: "{{ source_branch }}"
+            operator: in
+            values: ["main"]
+        runAfter:
+          - git-release
+        taskRef:
+          name: skopeo-copy
+        workspaces:
+          - name: source
+            workspace: source
+        params:
+          - name: srcImageURL
+            value: "docker://image-registry.openshift-image-registry.svc:5000/image-build/semantic-release:$(tasks.build-image.results.IMAGE_DIGEST)"
+          - name: destImageURL
+            value: "docker://$(params.IMAGE):$(tasks.git-release.results.version)"
 
-      # - name: push-image-tag
-      #   when:
-      #     - input: "{{ source_branch }}"
-      #       operator: in
-      #       values: ["main"]
-      #   runAfter:
-      #     - git-release
-      #   taskRef:
-      #     name: skopeo-copy
-      #   workspaces:
-      #     - name: source
-      #       workspace: source
-      #   params:
-      #     - name: srcImageURL
-      #       value: "docker://$(tasks.build-image.results.IMAGE_URL)"
-      #     - name: destImageURL
-      #       value: "docker://quay.io/stbenji/semantic-release:$(tasks.git-release.results.version)"
+      - name: push-image-sig
+        when:
+          - input: "{{ source_branch }}"
+            operator: in
+            values: ["main"]
+        runAfter:
+          - git-release
+        taskRef:
+          name: skopeo-copy
+        workspaces:
+          - name: source
+            workspace: source
+        params:
+          - name: srcImageURL
+            value: "docker://image-registry.openshift-image-registry.svc:5000/image-build/semantic-release:$(tasks.build-image.results.IMAGE_DIGEST).sig"
+          - name: destImageURL
+            value: "docker://$(params.IMAGE):$(tasks.git-release.results.version).sig"
 
-      # - name: update-image-latest
-      #   when:
-      #     - input: "{{ source_branch }}"
-      #       operator: in
-      #       values: ["main"]
-      #   runAfter:
-      #     - git-release
-      #   taskRef:
-      #     name: skopeo-copy
-      #   workspaces:
-      #     - name: source
-      #       workspace: source
-      #   params:
-      #     - name: srcImageURL
-      #       value: "docker://$(tasks.build-image.results.IMAGE_URL)"
-      #     - name: destImageURL
-      #       value: "docker://quay.io/stbenji/semantic-release:latest"
+      - name: push-image-attestation
+        when:
+          - input: "{{ source_branch }}"
+            operator: in
+            values: ["main"]
+        runAfter:
+          - git-release
+        taskRef:
+          name: skopeo-copy
+        workspaces:
+          - name: source
+            workspace: source
+        params:
+          - name: srcImageURL
+            value: "docker://image-registry.openshift-image-registry.svc:5000/image-build/semantic-release:$(tasks.build-image.results.IMAGE_DIGEST).att"
+          - name: destImageURL
+            value: "docker://$(params.IMAGE):$(tasks.git-release.results.version).att"
+
+      - name: generate-and-attach-sbom
+        when:
+          - input: "{{ source_branch }}"
+            operator: in
+            values: ["main"]
+        taskRef:
+          name: syft
+        workspaces:
+          - name: source-dir
+            workspace: source
+        runAfter:
+          - push-image-tag
+        params:
+          - name: SYFT_ARGS
+            value:
+              - packages
+              - registry://$(params.IMAGE):$(tasks.git-release.results.version)
+              - -o
+              - spdx-json
+              - --file
+              - /attestation_tmp/attestation.sbom
+          - name: COSIGN_SCRIPT
+            value: "cosign initialize --mirror=$TUF_URL
+              --root=$TUF_URL/root.json\ncosign attest
+              $(params.IMAGE):$(tasks.git-release.results.version) -y
+              --fulcio-url=$(params.fulcio-url) --rekor-url=$(params.rekor-url)
+              --oidc-issuer=$(params.oidc-issuer-url) --predicate
+              /attestation_tmp/attestation.sbom --type spdxjson
+              --attachment-tag-prefix sbom- \n"
+          - name: TUF_URL
+            value: $(params.tuf-url)
+
+      - name: generate-and-attach-vulnerability-attest
+        when:
+          - input: "{{ source_branch }}"
+            operator: in
+            values: ["main"]
+        runAfter:
+          - generate-and-attach-sbom
+        taskRef:
+          kind: Task
+          name: grype
+        params:
+          - name: GRYPE_ARGS
+            value:
+              - registry://$(params.IMAGE):$(tasks.git-release.results.version)
+              - --file
+              - /attestation_tmp/attestation.sarif
+              - -o
+              - sarif
+          - name: COSIGN_SCRIPT
+            value:
+              "cosign initialize --mirror=$TUF_URL --root=$TUF_URL/root.json\n
+              cosign attest
+              $(params.IMAGE):$(tasks.git-release.results.version)-y
+              --fulcio-url=$(params.fulcio-url) --rekor-url=$(params.rekor-url)
+              --oidc-issuer=$(params.oidc-issuer-url) --predicate
+              /attestation_tmp/attestation.sarif --type vuln
+              --attachment-tag-prefix sarif- \n"
+          - name: TUF_URL
+            value: $(params.tuf-url)
+
+      - name: update-image-latest
+        when:
+          - input: "{{ source_branch }}"
+            operator: in
+            values: ["main"]
+        runAfter:
+          - git-release
+        taskRef:
+          name: skopeo-copy
+        workspaces:
+          - name: source
+            workspace: source
+        params:
+          - name: srcImageURL
+            value: "docker://$(tasks.build-image.results.IMAGE_URL)"
+          - name: destImageURL
+            value: "docker://$(params.IMAGE):latest"
 
   workspaces:
     - name: source
