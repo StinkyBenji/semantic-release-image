@@ -132,9 +132,9 @@ spec:
             workspace: source
         params:
           - name: srcImageURL
-            value: "docker://image-registry.openshift-image-registry.svc:5000/image-build/semantic-release@$(tasks.build-image.results.IMAGE_DIGEST)"
+            value: "image-registry.openshift-image-registry.svc:5000/image-build/semantic-release@$(tasks.build-image.results.IMAGE_DIGEST)"
           - name: destImageURL
-            value: "docker://$(params.IMAGE):$(tasks.git-release.results.version)"
+            value: "$(params.IMAGE):$(tasks.git-release.results.version)"
 
       - name: generate-and-attach-sbom
         when:
@@ -211,9 +211,9 @@ spec:
             workspace: source
         params:
           - name: srcImageURL
-            value: "docker://$(tasks.build-image.results.IMAGE_URL)"
+            value: "$(tasks.build-image.results.IMAGE_URL)"
           - name: destImageURL
-            value: "docker://$(params.IMAGE):latest"
+            value: "$(params.IMAGE):latest"
 
   workspaces:
     - name: source
