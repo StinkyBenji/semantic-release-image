@@ -17,11 +17,11 @@ spec:
     - description: The Arguments to be passed to cosign command.
       name: COSIGN_SCRIPT
       type: string
-    - default: registry.redhat.io/rh-syft-tech-preview/syft-rhel9:1.0.1@sha256:27c268d678103a27b6964c2cd5169040941b7304d0078f9727789ffb8ffba370
+    - default: docker.io/anchore/syft@sha256:981086797ad3cb1be49d763ffaa50f2bd558c354358112f46283dd3bf8cb0c75
       description: Syft image to be used
       name: SYFT_IMAGE
       type: string
-    - default: registry.redhat.io/rhtas-tech-preview/cosign-rhel9:0.0.2@sha256:151f4a1e721b644bafe47bf5bfb8844ff27b95ca098cc37f3f6cbedcda79a897
+    - default: bitnami/cosign:latest
       description: Cosing image to be used
       name: COSIGN_IMAGE
       type: string

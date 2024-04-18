@@ -21,7 +21,7 @@ spec:
       description: Grype image to be used
       name: GRYPE_IMAGE
       type: string
-    - default: registry.redhat.io/rhtas-tech-preview/cosign-rhel9:0.0.2@sha256:151f4a1e721b644bafe47bf5bfb8844ff27b95ca098cc37f3f6cbedcda79a897
+    - default: bitnami/cosign:latest
       description: Cosing image to be used
       name: COSIGN_IMAGE
       type: string
