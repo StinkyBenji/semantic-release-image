@@ -1,7 +1,7 @@
 # renovate: datasource=npm depName=renovate versioning=npm
 ARG RENOVATE_VERSION=37.304.0
 
-FROM registry.access.redhat.com/ubi8/nodejs-18@sha256:7f4a90b6aff42d792fa9dbff804747628f9de7a5a63c8508e1cb0691f97dbf2f
+FROM registry.redhat.io/rhel9/nodejs-20-minimal@sha256:7df041390af3135be9642556a1cf9d437a6cdc832267bc917e3b1421196be2b3
 
 WORKDIR $HOME
 
