@@ -12,8 +12,6 @@ npm --version \
 COPY package.json package-lock.json ./
 RUN npm ci && npm cache clean --force
 
-
-RUN \
-npx semantic-release --help
+RUN chown -R 65532:0 /opt/app-root/src/.npm
 
 USER 65532
