@@ -9,9 +9,11 @@ RUN \
 npm --version \
 && npx --version
 
-COPY package.json package-lock.json ./
-RUN npm ci && npm cache clean --force
-
-RUN chown -R 65532:0 /opt/app-root/src/.npm
-
-USER 65532
+RUN \
+npm install -g semantic-release@"22.0.7" \
+&& npm install -g @semantic-release/changelog@"6.0.3" \
+&& npm install -g @semantic-release/exec@"6.0.3" \
+&& npm install -g @semantic-release/git@"10.0.1" \
+&& npm install -g @commitlint/cli@"18.0.0" \
+&& npm install -g @commitlint/config-conventional@"18.0.0" \
+&& npm install -g conventional-changelog-conventionalcommits@"7.0.1"
