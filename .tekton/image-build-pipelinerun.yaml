@@ -13,7 +13,7 @@ metadata:
     pipelinesascode.tekton.dev/task-5: "[.tekton/tasks/skopeo-sync.yaml]"
     pipelinesascode.tekton.dev/on-cel-expression: |
       (event == "push" || event == "pull_request") && target_branch == "main" &&
-      ("Containerfile".pathChanged() || ".tekton/image-build-pipelinerun.yaml".pathChanged())
+      ("Containerfile".pathChanged() || ".tekton/image-build-pipelinerun.yaml".pathChanged() || "package*".pathChanged())
 spec:
   serviceAccountName: pipelines-sa
   params:
@@ -187,8 +187,7 @@ spec:
               - -o
               - sarif
           - name: COSIGN_SCRIPT
-            value:
-              "cosign initialize --mirror=$TUF_URL --root=$TUF_URL/root.json\n
+            value: "cosign initialize --mirror=$TUF_URL --root=$TUF_URL/root.json\n
               cosign attest
               $(params.IMAGE):$(tasks.git-release.results.version)-y
               --fulcio-url=$(params.fulcio-url) --rekor-url=$(params.rekor-url)
