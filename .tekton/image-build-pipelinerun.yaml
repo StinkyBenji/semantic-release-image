@@ -10,7 +10,7 @@ metadata:
     pipelinesascode.tekton.dev/task-2: "[.tekton/tasks/syft.yaml]"
     pipelinesascode.tekton.dev/task-3: "[.tekton/tasks/grype.yaml]"
     pipelinesascode.tekton.dev/task-4: "[.tekton/tasks/semantic-release.yaml]"
-    pipelinesascode.tekton.dev/task-5: "[.tekton/tasks/skopeo-sync.yaml]"
+    pipelinesascode.tekton.dev/task-5: "[.tekton/tasks/skopeo-copy.yaml]"
     pipelinesascode.tekton.dev/on-cel-expression: |
       (event == "push" || event == "pull_request") && target_branch == "main" &&
       ("Containerfile".pathChanged() || ".tekton/image-build-pipelinerun.yaml".pathChanged() || "package*".pathChanged())
@@ -102,9 +102,7 @@ spec:
 
       - name: git-release
         when:
-          - input: "{{ source_branch }}"
-            operator: in
-            values: ["main"]
+          - cel: "'{{ source_branch }}'.matches('release/.*')"
         runAfter:
           - image-test
         taskRef:
@@ -126,15 +124,51 @@ spec:
         runAfter:
           - git-release
         taskRef:
-          name: skopeo-sync
+          name: skopeo-copy
         workspaces:
           - name: source
             workspace: source
         params:
           - name: srcImageURL
-            value: "image-registry.openshift-image-registry.svc:5000/image-build/semantic-release@$(tasks.build-image.results.IMAGE_DIGEST)"
+            value: "docker://image-registry.openshift-image-registry.svc:5000/image-build/semantic-release@$(tasks.build-image.results.IMAGE_DIGEST)"
           - name: destImageURL
-            value: "$(params.IMAGE):$(tasks.git-release.results.version)"
+            value: "docker://$(params.IMAGE):$(tasks.git-release.results.version)"
+
+      - name: push-image-sig
+        taskRef:
+          name: skopeo-copy
+        when:
+          - input: "{{ source_branch }}"
+            operator: in
+            values: ["main"]
+        runAfter:
+          - git-release
+        workspaces:
+          - name: source
+            workspace: source
+        params:
+          - name: srcImageURL
+            value: "docker://image-registry.openshift-image-registry.svc:5000/image-build/semantic-release:sha256-49c09f839e54231555673d658f36632bf08ee3387d0db6973daf226b2dc3c401.sig"
+          - name: destImageURL
+            value: "docker://$(params.IMAGE):$(tasks.git-release.results.version).sig"
+
+      - name: push-image-attest
+        taskRef:
+          name: skopeo-copy
+        when:
+          - input: "{{ source_branch }}"
+            operator: in
+            values: ["main"]
+        workspaces:
+          - name: source
+            workspace: source
+        runAfter:
+          - git-release
+        params:
+          - name: srcImageURL
+            value: "docker://image-registry.openshift-image-registry.svc:5000/image-build/semantic-release:sha256-49c09f839e54231555673d658f36632bf08ee3387d0db6973daf226b2dc3c401.sig"
+          - name: destImageURL
+            value: "docker://$(params.IMAGE):$(tasks.git-release.results.version).att"
 
       - name: generate-and-attach-sbom
         when:
@@ -147,12 +181,12 @@ spec:
           - name: source-dir
             workspace: source
         runAfter:
-          - push-image-tag
+          - push-image-attest
         params:
           - name: SYFT_ARGS
             value:
               - packages
-              - registry://$(params.IMAGE):$(tasks.git-release.results.version)
+              - registry:$(params.IMAGE):$(tasks.git-release.results.version)
               - -o
               - spdx-json
               - --file
@@ -181,7 +215,7 @@ spec:
         params:
           - name: GRYPE_ARGS
             value:
-              - registry://$(params.IMAGE):$(tasks.git-release.results.version)
+              - registry:$(params.IMAGE):$(tasks.git-release.results.version)
               - --file
               - /attestation_tmp/attestation.sarif
               - -o
@@ -203,9 +237,9 @@ spec:
             operator: in
             values: ["main"]
         runAfter:
-          - git-release
+          - build-image
         taskRef:
-          name: skopeo-sync
+          name: skopeo-copy
         workspaces:
           - name: source
             workspace: source
