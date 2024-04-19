@@ -148,7 +148,7 @@ spec:
             workspace: source
         params:
           - name: srcImageURL
-            value: "docker://image-registry.openshift-image-registry.svc:5000/image-build/semantic-release:sha256-49c09f839e54231555673d658f36632bf08ee3387d0db6973daf226b2dc3c401.sig"
+            value: "docker://image-registry.openshift-image-registry.svc:5000/image-build/semantic-release:$(tasks.build-image.results.IMAGE_DIGEST_SIG).sig"
           - name: destImageURL
             value: "docker://$(params.IMAGE):$(tasks.git-release.results.version).sig"
 
@@ -166,7 +166,7 @@ spec:
           - git-release
         params:
           - name: srcImageURL
-            value: "docker://image-registry.openshift-image-registry.svc:5000/image-build/semantic-release:sha256-49c09f839e54231555673d658f36632bf08ee3387d0db6973daf226b2dc3c401.sig"
+            value: "docker://image-registry.openshift-image-registry.svc:5000/image-build/semantic-release:$(tasks.build-image.results.IMAGE_DIGEST_SIG).sig"
           - name: destImageURL
             value: "docker://$(params.IMAGE):$(tasks.git-release.results.version).att"
 
