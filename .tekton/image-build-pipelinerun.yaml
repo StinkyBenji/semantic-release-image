@@ -102,7 +102,9 @@ spec:
 
       - name: git-release
         when:
-          - cel: "'{{ source_branch }}'.matches('release/.*')"
+          - input: "{{ source_branch }}"
+            operator: in
+            values: ["main"]
         runAfter:
           - image-test
         taskRef:
