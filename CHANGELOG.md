@@ -1,3 +1,11 @@
+## [1.1.1](https://github.com/StinkyBenji/semantic-release-image/compare/v1.1.0...v1.1.1) (2024-04-23)
+
+
+### Bug Fixes
+
+* **deps:** update dependency conventional-changelog-conventionalcommits to v7.0.2 ([ffb3c53](https://github.com/StinkyBenji/semantic-release-image/commit/ffb3c537fb82fbd964bd014acbfd70007cd4ff22))
+* **deps:** update dependency get-stream to v9 ([ca99979](https://github.com/StinkyBenji/semantic-release-image/commit/ca999794be99cae1e1e1658b87dea6748dcb247b))
+
 ## [1.1.0](https://github.com/StinkyBenji/semantic-release-image/compare/v1.0.0...v1.1.0) (2024-04-18)
 
 
