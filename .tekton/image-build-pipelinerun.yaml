@@ -247,9 +247,9 @@ spec:
             workspace: source
         params:
           - name: srcImageURL
-            value: "$(tasks.build-image.results.IMAGE_URL)"
+            value: "docker://$(tasks.build-image.results.IMAGE_URL)"
           - name: destImageURL
-            value: "$(params.IMAGE):latest"
+            value: "docker://$(params.IMAGE):latest"
 
   workspaces:
     - name: source
