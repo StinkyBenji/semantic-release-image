@@ -239,7 +239,7 @@ spec:
             operator: in
             values: ["main"]
         runAfter:
-          - build-image
+          - image-test
         taskRef:
           name: skopeo-copy
         workspaces:
