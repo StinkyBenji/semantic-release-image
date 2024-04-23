@@ -6,6 +6,6 @@ WORKDIR $HOME
 
 COPY package*.json ./
 
-RUN npm clean install
+RUN npm clean-install
 
 CMD ["npx", "semantic-release", "--help"]
