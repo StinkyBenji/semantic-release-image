@@ -5,15 +5,8 @@ LABEL org.opencontainers.image.source="https://github.com/renovatebot/renovate"
 
 RUN npm install -g npm@"10.5.2"
 
-RUN \
-npm --version \
-&& npx --version
+COPY package.json package-lock.json ./
+RUN npm ci && npm cache clean --force
 
 RUN \
-npm install -g semantic-release@"22.0.7" \
-&& npm install -g @semantic-release/changelog@"6.0.3" \
-&& npm install -g @semantic-release/exec@"6.0.3" \
-&& npm install -g @semantic-release/git@"10.0.1" \
-&& npm install -g @commitlint/cli@"18.0.0" \
-&& npm install -g @commitlint/config-conventional@"18.0.0" \
-&& npm install -g conventional-changelog-conventionalcommits@"7.0.1"
+npx semantic-release --help
