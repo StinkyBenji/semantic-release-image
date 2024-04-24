@@ -1,3 +1,22 @@
+## [2.0.0](https://github.com/StinkyBenji/semantic-release-image/compare/v1.1.1...v2.0.0) (2024-04-24)
+
+
+### Features
+
+* add semantic release to dependencies ([4f97027](https://github.com/StinkyBenji/semantic-release-image/commit/4f970279e14cb9420e0239609085cce370d04b9e))
+* change npm install command ([2004a55](https://github.com/StinkyBenji/semantic-release-image/commit/2004a5565b714c96b95d7e13c782aae7149ae61e))
+* change the directory name to be created for app ([1e2f969](https://github.com/StinkyBenji/semantic-release-image/commit/1e2f9690c8f492a21e5c51179f67ea0e5b3168c7))
+* update containerfile to non-root user ([b727ca6](https://github.com/StinkyBenji/semantic-release-image/commit/b727ca651be78392f922ab094b00f3511de1fc4e))
+* use package.json in dockerfile ([7f75dc8](https://github.com/StinkyBenji/semantic-release-image/commit/7f75dc88c7ace47aa8a1f423d08818ac4f7ee79e))
+
+
+### Bug Fixes
+
+* correct npm clean install command ([e217029](https://github.com/StinkyBenji/semantic-release-image/commit/e2170297de08f2ac51168513534659e3b76d4e43))
+* remove npm global update: ([6a237f2](https://github.com/StinkyBenji/semantic-release-image/commit/6a237f2f8efe82cc57031e02fa59071bc9590cb4))
+* update containerfile with non-root user ([68cf668](https://github.com/StinkyBenji/semantic-release-image/commit/68cf6682699f1b0f245f3eefa5300849847b3ebf))
+* update npm but not globally ([d109b0f](https://github.com/StinkyBenji/semantic-release-image/commit/d109b0f925cb8bd88d1b1d27325dfc30c54fc2be))
+
 ## [1.1.1](https://github.com/StinkyBenji/semantic-release-image/compare/v1.1.0...v1.1.1) (2024-04-23)
 
 
