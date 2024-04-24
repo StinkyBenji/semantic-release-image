@@ -85,6 +85,8 @@ spec:
             value: "./Containerfile"
           - name: IMAGE
             value: "image-registry.openshift-image-registry.svc:5000/image-build/semantic-release"
+          - name: BUILD_EXTRA_ARGS
+            value: "--ulimit nofile=4096:4096"
 
       - name: image-test
         taskRef:
