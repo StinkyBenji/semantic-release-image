@@ -4,12 +4,13 @@ LABEL org.opencontainers.image.source="https://github.com/renovatebot/renovate"
 
 WORKDIR /usr/src/app
 
-RUN npm install -g npm@"10.5.2"
+RUN export npm_config_cache=/usr/src/app/.npm
 
 COPY --chown=65532:65532 package*.json ./
 
 # getting error: Your cache folder contains root-owned files
-RUN npm ci && npm cache clean --force
+RUN npm install -g npm@"10.5.2" \
+&& npm ci && npm cache clean --force
 
 COPY --chown=65532:65532 . .
 
