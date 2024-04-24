@@ -8,9 +8,9 @@ RUN mkdir /home/app/.npm-global
 ENV NPM_CONFIG_PREFIX /home/app/.npm-global
 ENV NPM_CONFIG_CACHE /home/app/.npm
 
-COPY --chown=65532:65532 package*.json ./
+COPY package*.json ./
 
-RUN npm install npm@"10.5.2" \
+RUN npm install -g npm@"10.5.2" \
 && npm ci && npm cache clean --force
 
 COPY --chown=65532:65532 . .
