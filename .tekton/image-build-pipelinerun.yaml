@@ -31,10 +31,12 @@ spec:
       value: https://rekor-server-openshift-operators.apps.ocp4.whatever.out-of-my-head.de
     - name: oidc-issuer-url
       value: https://oidc-discovery.apps.ocp4.whatever.out-of-my-head.de
-  # podTemplate:
-  #   env:
-  #     - name: HOME
-  #       value: "/tekton/home"
+  taskRunTemplate:
+    serviceAccountName: pipeline-sa
+  podTemplate:
+    env:
+      - name: HOME
+        value: "/tekton/home"
   pipelineSpec:
     params:
       - name: repo_url
