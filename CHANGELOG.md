@@ -1,3 +1,15 @@
+## [2.2.0](https://github.com/StinkyBenji/semantic-release-image/compare/v2.1.0...v2.2.0) (2024-04-24)
+
+
+### Features
+
+* update package dependencies and pipelinerun ([7a6d775](https://github.com/StinkyBenji/semantic-release-image/commit/7a6d775ff238979a2c65b523b7700c492678d3a8))
+
+
+### Bug Fixes
+
+* update service account name to be used in task run ([c1a125e](https://github.com/StinkyBenji/semantic-release-image/commit/c1a125eecadc056cb6bb6777598e9b50174cdda4))
+
 ## [2.1.0](https://github.com/StinkyBenji/semantic-release-image/compare/v2.0.0...v2.1.0) (2024-04-24)
 
 
