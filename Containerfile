@@ -5,11 +5,11 @@ WORKDIR $HOME
 # getting error: Your cache folder contains root-owned files
 ENV NPM_CONFIG_CACHE $HOME/.npm
 
-COPY --chown=65532:0 package*.json ./
+COPY --chown=65532:65532 package*.json ./
 
 RUN npm install -g npm@"10.5.2" \
 && npm ci && npm cache clean --force
 
-COPY --chown=65532:0 . .
+COPY --chown=65532:65532 . .
 
 CMD ["npx", "semantic-release", "--help"]
