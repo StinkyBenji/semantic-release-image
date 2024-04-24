@@ -31,10 +31,10 @@ spec:
       value: https://rekor-server-openshift-operators.apps.ocp4.whatever.out-of-my-head.de
     - name: oidc-issuer-url
       value: https://oidc-discovery.apps.ocp4.whatever.out-of-my-head.de
-  podTemplate:
-    env:
-      - name: HOME
-        value: "/tekton/home"
+  # podTemplate:
+  #   env:
+  #     - name: HOME
+  #       value: "/tekton/home"
   pipelineSpec:
     params:
       - name: repo_url
@@ -170,7 +170,7 @@ spec:
           - git-release
         params:
           - name: srcImageURL
-            value: "docker://image-registry.openshift-image-registry.svc:5000/image-build/semantic-release:$(tasks.build-image.results.IMAGE_DIGEST_SIG).sig"
+            value: "docker://image-registry.openshift-image-registry.svc:5000/image-build/semantic-release:$(tasks.build-image.results.IMAGE_DIGEST_SIG).att"
           - name: destImageURL
             value: "docker://$(params.IMAGE):$(tasks.git-release.results.version).att"
 
@@ -249,7 +249,7 @@ spec:
             workspace: source
         params:
           - name: srcImageURL
-            value: "docker://$(tasks.build-image.results.IMAGE_URL)"
+            value: "docker://image-registry.openshift-image-registry.svc:5000/image-build/semantic-release@$(tasks.build-image.results.IMAGE_DIGEST)"
           - name: destImageURL
             value: "docker://$(params.IMAGE):latest"
 
