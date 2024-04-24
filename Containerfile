@@ -10,7 +10,8 @@ ENV NPM_CONFIG_CACHE /home/app/.npm
 
 COPY --chown=65532:65532 package*.json ./
 
-RUN npm ci && npm cache clean --force
+RUN npm install npm@"10.5.2" \
+&& npm ci && npm cache clean --force
 
 COPY --chown=65532:65532 . .
 
