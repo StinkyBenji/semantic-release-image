@@ -106,9 +106,11 @@ spec:
           $(params.PUSH_EXTRA_ARGS) --tls-verify=$(params.TLSVERIFY) \
           --digestfile /tmp/image-digest $(params.IMAGE) \
           docker://$(params.IMAGE)
+
         cat /tmp/image-digest | tee $(results.IMAGE_DIGEST.path)
         # replace colon with dash in the image digest for push signature
-        tr ':' '-' < /tmp/image-digest > /tmp/image-digest-sig | cat /tmp/image-digest-sig | tee $(results.IMAGE_DIGEST_SIG.path)
+        tr ':' '-' < /tmp/image-digest > /tmp/image-digest-sig
+        cat /tmp/image-digest-sig | tee $(results.IMAGE_DIGEST_SIG.path)
 
         # Make sure that there is no new line in the task result
         echo -n "$(params.IMAGE)" | tee $(results.IMAGE_URL.path)
