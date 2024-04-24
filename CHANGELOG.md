@@ -1,3 +1,10 @@
+## [2.1.0](https://github.com/StinkyBenji/semantic-release-image/compare/v2.0.0...v2.1.0) (2024-04-24)
+
+
+### Features
+
+* update package dependencies and pre-commit config ([2558535](https://github.com/StinkyBenji/semantic-release-image/commit/25585350cb1a0fd0181dc72afcf55c4234d1d715))
+
 ## [2.0.0](https://github.com/StinkyBenji/semantic-release-image/compare/v1.1.1...v2.0.0) (2024-04-24)
 
 
