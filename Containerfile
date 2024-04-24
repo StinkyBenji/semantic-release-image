@@ -1,9 +1,9 @@
 FROM registry.access.redhat.com/ubi9/nodejs-20@sha256:f3bca9a308de01f16b354300c51555cfedde45b5bb1f86976f71c76c0d9916e8
 
-WORKDIR $HOME
+WORKDIR /home/app
 
 # getting error: Your cache folder contains root-owned files
-ENV NPM_CONFIG_CACHE $HOME/.npm
+ENV NPM_CONFIG_CACHE /home/app/.npm
 
 COPY --chown=65532:65532 package*.json ./
 
