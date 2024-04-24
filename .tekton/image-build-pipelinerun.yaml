@@ -35,6 +35,8 @@ spec:
     env:
       - name: HOME
         value: "/tekton/home"
+      - name: NPM_CONFIG_CACHE
+        value: "/tekton/home/.npm"
   pipelineSpec:
     params:
       - name: repo_url
