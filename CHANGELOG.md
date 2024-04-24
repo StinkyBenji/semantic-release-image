@@ -1,3 +1,15 @@
+## [2.3.0](https://github.com/StinkyBenji/semantic-release-image/compare/v2.2.0...v2.3.0) (2024-04-24)
+
+
+### Features
+
+* ping semantic release version ([3611652](https://github.com/StinkyBenji/semantic-release-image/commit/3611652d21391a6e7206f61b55ee70b1cea69564))
+
+
+### Bug Fixes
+
+* **ci:** update buildah task results ([9533cb0](https://github.com/StinkyBenji/semantic-release-image/commit/9533cb0254fda2c20a3c313cf54a4404c88dd844))
+
 ## [2.2.0](https://github.com/StinkyBenji/semantic-release-image/compare/v2.1.0...v2.2.0) (2024-04-24)
 
 
