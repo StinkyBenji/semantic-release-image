@@ -32,7 +32,7 @@ spec:
     - name: oidc-issuer-url
       value: https://oidc-discovery.apps.ocp4.whatever.out-of-my-head.de
   taskRunTemplate:
-    serviceAccountName: pipeline-sa
+    serviceAccountName: pipelines-sa
   podTemplate:
     env:
       - name: HOME
