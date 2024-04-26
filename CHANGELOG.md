@@ -1,3 +1,10 @@
+## [2.3.1](https://github.com/StinkyBenji/semantic-release-image/compare/v2.3.0...v2.3.1) (2024-04-26)
+
+
+### Bug Fixes
+
+* **ci:** fix typo in cosign command in grype task ([550366b](https://github.com/StinkyBenji/semantic-release-image/commit/550366b9efd3e2c9ddda1478c3afefba4ca81c16))
+
 ## [2.3.0](https://github.com/StinkyBenji/semantic-release-image/compare/v2.2.0...v2.3.0) (2024-04-24)
 
 
